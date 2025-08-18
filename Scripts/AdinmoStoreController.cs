@@ -47,12 +47,12 @@ namespace Adinmo
                 switch (order)
                 {
                     case FailedOrder failedOrder:
-                        AdinmoUtilities.LogInfo("Failed to order " + product + ", " + failedOrder.FailureReason);
+                        AdinmoManager.Sender?.LogInfo("Failed to order " + product + ", " + failedOrder.FailureReason);
                         AdinmoManager.InAppPurchaseFailed(product.definition.id, product.metadata.isoCurrencyCode, (float)product.metadata.localizedPrice, failedOrder.FailureReason.ToString());
                         break;
                     case ConfirmedOrder:
 
-                        AdinmoUtilities.LogInfo("Purchase confirmed for " + product );
+                        AdinmoManager.Sender?.LogInfo("Purchase confirmed for " + product );
                         AdinmoManager.InAppPurchaseSuccess(product.definition.id, product.metadata.isoCurrencyCode, (float)product.metadata.localizedPrice, order.Info.TransactionID);
                         break;
                 }
@@ -64,7 +64,7 @@ namespace Adinmo
             foreach (var cartItem in failedOrder.CartOrdered.Items())
             {
                 var product = cartItem.Product;
-                AdinmoUtilities.LogInfo("Failed to order " + product + ", " + failedOrder.FailureReason);
+                AdinmoManager.Sender?.LogInfo("Failed to order " + product + ", " + failedOrder.FailureReason);
                 AdinmoManager.InAppPurchaseFailed(product.definition.id, product.metadata.isoCurrencyCode, (float)product.metadata.localizedPrice, failedOrder.FailureReason.ToString());
             }
         }
@@ -80,7 +80,7 @@ namespace Adinmo
                         Product product = cartItem.Product;
                         if (product.definition.id == IAP_ID)
                         {
-                            AdinmoUtilities.LogInfo(product.definition.id + " already purchased");
+                            AdinmoManager.Sender?.LogInfo(product.definition.id + " already purchased");
                             return new InAppAlreadyPurchasedReply(true, (float)product.metadata.localizedPrice, product.metadata.isoCurrencyCode);
                         }
                     }
@@ -110,31 +110,6 @@ namespace Adinmo
             {
                 Instance.PurchaseProduct(item);
             }
-        }
-    }
-}
-#else
-using UnityEngine.Scripting;
-
-namespace Adinmo
-{
-    [Preserve]
-    public class AdinmoStoreController
-    {
-        [Preserve]
-        public static string? GetPrice(string item)
-        {
-            return null;
-        }
-
-        [Preserve]
-        public static InAppAlreadyPurchasedReply CheckAlreadyPurchased(string IAP_ID)
-        {
-            return new InAppAlreadyPurchasedReply(false);
-        }
-        [Preserve]
-        public static void PurchaseItem(string item)
-        {
         }
     }
 }

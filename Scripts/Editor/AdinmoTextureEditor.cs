@@ -16,8 +16,8 @@ namespace Adinmo
         {
             base.DrawDefaultInspector();
             AdinmoTexture adinmoTexture = (AdinmoTexture)target;
-            SerializedObject serObj = new(adinmoTexture);
-            List<string> labels = new();
+            SerializedObject serObj = new SerializedObject(adinmoTexture);
+            List<string> labels = new List<string>();
             int displayMask = 0;
 
             for (int i = 0; i < 32; i++)
@@ -34,7 +34,7 @@ namespace Adinmo
 
             if (labels.Count > 0)
             {
-                int newDisplayMask = EditorGUILayout.MaskField(new GUIContent("Occlusion test ignores Layers","Objects on selected layers won't block impression detection"), displayMask, labels.ToArray());
+                int newDisplayMask = EditorGUILayout.MaskField("Occlusion test ignores Layers", displayMask, labels.ToArray());
                 if (newDisplayMask != -1 && newDisplayMask != displayMask)
                 {
                     int newMask = 0;
@@ -55,20 +55,10 @@ namespace Adinmo
                 }
                 serializedObject.ApplyModifiedProperties();
             }
-            string statusString=adinmoTexture.GetStatusString();
-            if (!string.IsNullOrEmpty(statusString))
-            {
-                GUIStyle TextFieldStyles = new(EditorStyles.label)
-                {
-                    fontStyle = FontStyle.Bold
-                };
-                TextFieldStyles.normal.textColor = Color.red;
-                EditorGUILayout.LabelField(statusString,TextFieldStyles);
 
-            }
             if (Application.isPlaying)
             {
-                if (adinmoTexture.GetObjectType() == AdinmoReplace.ObjectType.Image || !(AdinmoManager.s_manager!=null && AdinmoManager.s_manager.imageRenderDebug))
+                if (adinmoTexture.GetObjectType() == AdinmoReplace.ObjectType.Image || !(AdinmoManager.s_manager?.imageRenderDebug ?? false))
                 {
                     EditorGUILayout.LabelField("Latest Sample", ("" + (adinmoTexture.LatestSample.sample * 100).ToString("F2") + "%"));
                 }

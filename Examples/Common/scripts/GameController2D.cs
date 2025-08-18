@@ -20,6 +20,12 @@ namespace Adinmo.Examples
         bool leftDown = false;
         bool rightDown = false;
 
+
+        void Start()
+        {
+
+        }
+
         // Update is called once per frame
         void Update()
         {

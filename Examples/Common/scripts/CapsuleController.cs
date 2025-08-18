@@ -48,7 +48,7 @@ namespace Adinmo.Examples
             if (inputVector != Vector2.zero)
             {
                 Vector3 desiredMove = transform.forward * inputVector.y + transform.right * inputVector.x;
-                characterController.Move(speed * Time.deltaTime * desiredMove);
+                characterController.Move(desiredMove * speed * Time.deltaTime);
             }
             if (UnityEngine.Input.GetMouseButton(1)
 #if !UNITY_EDITOR
@@ -58,7 +58,7 @@ namespace Adinmo.Examples
             {
 
                 transform.Rotate(Vector3.up, UnityEngine.Input.GetAxis("Mouse X") * mouseSpeed);
-                localXAngle -= UnityEngine.Input.GetAxis("Mouse Y") * mouseSpeed;
+                localXAngle = localXAngle - UnityEngine.Input.GetAxis("Mouse Y") * mouseSpeed;
                 if (localXAngle > 85)
                     localXAngle = 85;
                 else if (localXAngle < -85)

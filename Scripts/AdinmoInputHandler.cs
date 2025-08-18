@@ -56,7 +56,7 @@ namespace Adinmo
         [Preserve]
         public static UnityEngine.Touch GetTouch()
         {
-            UnityEngine.Touch touch = new();
+            UnityEngine.Touch touch = new UnityEngine.Touch();
 #if ENABLE_LEGACY_INPUT_MANAGER
             if (Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.OSXEditor || Application.platform == RuntimePlatform.WebGLPlayer)
             {

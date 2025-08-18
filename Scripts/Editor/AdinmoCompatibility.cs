@@ -19,11 +19,11 @@ namespace Adinmo
     public class AdinmoCompatibility : MonoBehaviour
     {
         private static string PURCHASE_SYMBOL_V4 = "ADINMO_UNITY_STORE_V4";
-        private static readonly string PURCHASE_SYMBOL_V5 = "ADINMO_UNITY_STORE_V5";
+        private static string PURCHASE_SYMBOL_V5 = "ADINMO_UNITY_STORE_V5";
         // Prevent dead-stripping
         public void KeepStrippedSymbols()
         {
-            UnityWebRequest r = new();
+            UnityWebRequest r = new UnityWebRequest();
 #if UNITY_2017_2_OR_NEWER
             r.SendWebRequest();
 #else

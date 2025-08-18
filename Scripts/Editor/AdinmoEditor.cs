@@ -1,13 +1,11 @@
-﻿using Adinmo.Flatbufs;
-using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using UnityEngine;
 using UnityEditor;
-using UnityEditor.Android;
 using UnityEditor.IMGUI.Controls;
-using UnityEditor.SceneManagement;
-using UnityEngine;
+using System.Collections.Generic;
 using UnityEngine.SceneManagement;
+using UnityEditor.SceneManagement;
+using System.IO;
+using System;
 
 namespace Adinmo
 {
@@ -25,35 +23,6 @@ namespace Adinmo
         public Placement GetPlacement()
         {
             return AdinmoManager.Downloader.GetPlacement(displayName);
-        }
-
-        public string GetError()
-        {
-            if (!AdinmoManager.IsReady())
-                return null;
-            GameStatusFB gameStatus = AdinmoManager.s_manager != null ? AdinmoManager.s_manager.GameStatus : GameStatusFB.Unknown;
-            string placementError = "";
-
-            if (string.IsNullOrEmpty(displayName))
-            {
-                placementError = "Placement Key not set on the following objects";
-            }
-            else if (gameStatus == GameStatusFB.Active || gameStatus == GameStatusFB.Sandbox)
-            {
-                if (AdinmoManager.Downloader!=null && AdinmoManager.Downloader.IsPlacementPaused(displayName))
-                {
-                    placementError = "Placement is paused";
-                }
-                else if (AdinmoManager.Downloader != null || AdinmoManager.Downloader.IsPlacementDeleted(displayName))
-                {
-                    placementError = "Placement is deleted";
-                }
-                else
-                {
-                    placementError = "Placement Key is invalid on the following objects";
-                }
-            }
-            return placementError;
         }
     }
 
@@ -82,7 +51,7 @@ namespace Adinmo
         protected override TreeViewItem BuildRoot()
         {
             AdinmoReplace[] adinmoReplacements = (AdinmoReplace[])GameObject.FindObjectsOfType(typeof(AdinmoReplace));
-            Dictionary<string, List<AdinmoReplace>> placementsDictionary = new();
+            Dictionary<string, List<AdinmoReplace>> placementsDictionary = new Dictionary<string, List<AdinmoReplace>>();
             foreach (AdinmoReplace adinmoReplace in adinmoReplacements)
             {
                 if (!placementsDictionary.ContainsKey(adinmoReplace.m_placementKey))
@@ -143,20 +112,11 @@ namespace Adinmo
             {
                 if (Application.isPlaying && IsExpanded(item.id))
                 {
-
-                    Placement placement = AdinmoManager.Downloader != null ? AdinmoManager.Downloader.GetPlacement(item.displayName) : null;
-
+                    Placement placement = null;
+                    if (AdinmoManager.Downloader)
+                        placement = AdinmoManager.Downloader.GetPlacement(item.displayName);
                     if (placement == null)
-                    {
-                        GameStatusFB gameStatus = AdinmoManager.s_manager != null ? AdinmoManager.s_manager.GameStatus : GameStatusFB.Unknown;
-                        string error = ((AdinmoPlacementTreeViewItem)item).GetError();
-                        if (gameStatus != GameStatusFB.Sandbox && gameStatus != GameStatusFB.Active)
-                            return rowHeight;
-                        if (!string.IsNullOrEmpty(error))
-                            return rowHeight * 2;
-                        else
-                            return rowHeight;
-                    }
+                        return rowHeight * 3;
                     else
                         return rowHeight * 7 + 5;
                 }
@@ -171,16 +131,16 @@ namespace Adinmo
 
         protected override void RowGUI(RowGUIArgs args)
         {
-            GUIStyle headerStyle = new(GUI.skin.label)
+            GUIStyle headerStyle = new GUIStyle(GUI.skin.label)
             {
                 alignment = TextAnchor.UpperLeft,
                 fontStyle = FontStyle.Bold
             };
-            GUIStyle labelStyle = new(GUI.skin.label)
+            GUIStyle labelStyle = new GUIStyle(GUI.skin.label)
             {
                 alignment = TextAnchor.UpperLeft
             };
-            GUIStyle valueStyle = new(GUI.skin.label)
+            GUIStyle valueStyle = new GUIStyle(GUI.skin.label)
             {
                 alignment = TextAnchor.UpperRight
             };
@@ -215,8 +175,8 @@ namespace Adinmo
                         }
                         else
                         {
-                            float imageWidth;
-                            float imageHeight;
+                            float imageWidth = 0;
+                            float imageHeight = 0;
                             float widthOffset = 0;
                             float heightOffset = 0;
 
@@ -261,12 +221,11 @@ namespace Adinmo
 
                         GUI.Label(rect, args.item.displayName, headerStyle);
                         ImpressionsSummary impressionsSummary = ((AdinmoPlacementTreeViewItem)args.item).GetImpressionsSummary();
-                        var treeItem = (AdinmoPlacementTreeViewItem)args.item;
-                        Placement placement = treeItem.GetPlacement();
+                        Placement placement = ((AdinmoPlacementTreeViewItem)args.item).GetPlacement();
                         float bestSample = 0;
                         foreach (TreeViewItem replaceItem in args.item.children)
                         {
-                            bestSample = Mathf.Max(bestSample, ((AdinmoReplaceTreeViewItem)replaceItem.children[0]).m_adinmoReplace.LatestSample.sample);
+                            bestSample = Mathf.Max(bestSample,((AdinmoReplaceTreeViewItem)replaceItem.children[0]).m_adinmoReplace.LatestSample.sample);
                         }
 
                         string currentNumImpressions = " n/a";
@@ -305,17 +264,17 @@ namespace Adinmo
                         else if (AdinmoManager.IsReady())
                         {
                             Color oldColour = GUI.contentColor;
-                            string placementError = treeItem.GetError();
-                            if (!string.IsNullOrEmpty(placementError))
-                            {
-                                GUI.contentColor = new Color(0, 0, 0, 0.75f);
-                                GUI.Label(new Rect(rect.x, rowposy, LABEL_WIDTH + VALUE_WIDTH + 100, rowHeight), placementError, headerStyle);
+                            string str1 = "Placement Key is invalid or paused on";
+                            string str2 = "Adinmo.com for this Game Key";
 
-                                GUI.contentColor = Color.red;
-                                GUI.Label(new Rect(rect.x, rowposy, LABEL_WIDTH + VALUE_WIDTH + 100, rowHeight), placementError, headerStyle);
-                                GUI.contentColor = oldColour;
-                            }
+                            GUI.contentColor = new Color(0, 0, 0, 0.75f);
+                            GUI.Label(new Rect(rect.x, rowposy, LABEL_WIDTH + VALUE_WIDTH + 20, rowHeight), str1, headerStyle);
+                            GUI.Label(new Rect(rect.x, rowposy + rowHeight, LABEL_WIDTH + VALUE_WIDTH + 20, rowHeight), str2, headerStyle);
 
+                            GUI.contentColor = Color.red;
+                            GUI.Label(new Rect(rect.x, rowposy, LABEL_WIDTH + VALUE_WIDTH + 20, rowHeight), str1, headerStyle);
+                            GUI.Label(new Rect(rect.x, rowposy + rowHeight, LABEL_WIDTH + VALUE_WIDTH + 20, rowHeight), str2, headerStyle);
+                            GUI.contentColor = oldColour;
                         }
 
 
@@ -357,7 +316,7 @@ namespace Adinmo
 
     internal static class AdinmoEditorCommon //Common editor code that can be reused
     {
-        public static void RenderAdinmoManagerUI(SerializedObject serializedObject, Texture2D AdinmoLogo, ref Rect rect, bool isPopOutWindow, string editorScriptPath)
+        public static void RenderAdinmoManagerUI(SerializedObject serializedObject, Texture2D AdinmoLogo, ref Rect rect, bool isPopOutWindow,string editorScriptPath)
         {
             //Retrieve all the variables required from the Adinmo Manager
             var debug = serializedObject.FindProperty("basicDebug");
@@ -365,14 +324,14 @@ namespace Adinmo
             var debugOnDevice = serializedObject.FindProperty("m_debugOnDevice");
             var placementDebug = serializedObject.FindProperty("placementDebug");
             var debugSize = serializedObject.FindProperty("debugFontSize");
+            var debugColour = serializedObject.FindProperty("debugFontColour");
             var imageRenderDebug = serializedObject.FindProperty("imageRenderDebug");
             var applyAds = serializedObject.FindProperty("m_applyAds");
             var camera = serializedObject.FindProperty("m_camera");
             var gamekey = serializedObject.FindProperty("m_gameKey");
             var applicationVersion = serializedObject.FindProperty("applicationVersion");
-            var androidAdmobAppId = serializedObject.FindProperty("m_AndroidAdMobAppId");
+            var androidAdmobAppId= serializedObject.FindProperty("m_AndroidAdMobAppId");
             var magnifierSortOrder = serializedObject.FindProperty("MagnifierSortOrder");
-            var customMagnifierTemplate = serializedObject.FindProperty("CustomMagnifierTemplate");
             if (isPopOutWindow) //Specific formatting for the popout window
             {
                 EditorGUILayout.Space();
@@ -397,14 +356,6 @@ namespace Adinmo
                     EditorGUILayout.Space();
                 serializedObject.Update();
             }
-            EditorGUILayout.Space(10);
-            EditorGUILayout.LabelField(new GUIContent("Version"), new GUIContent("3.2." + AdinmoSender.GetVersion() + " s" + AdinmoSender.GetSdkSource()));
-
-            if (EditorGUILayout.LinkButton(new GUIContent("Documentation")))
-            {
-                Application.OpenURL("http://documentation.adinmo.com");
-            }
-
 
             //Display the AdinmoManager debug options
             EditorGUILayout.PropertyField(debug);
@@ -427,36 +378,12 @@ namespace Adinmo
             EditorGUILayout.PropertyField(applyAds);
             EditorGUILayout.PropertyField(camera);
             EditorGUILayout.PropertyField(gamekey);
-            if (Application.isPlaying)
-            {
-                GameStatusFB gameStatus = AdinmoManager.s_manager!=null ? AdinmoManager.s_manager.GameStatus : GameStatusFB.Unknown;
-                GUIStyle warningLabelStyle = new(EditorStyles.label);
-                warningLabelStyle.normal.textColor = Color.red;
-                warningLabelStyle.fontSize = 18;
-                warningLabelStyle.fixedHeight = 22;
-                warningLabelStyle.fontStyle = FontStyle.Bold;
-
-                if (string.IsNullOrEmpty(gamekey.stringValue))
-                {
-                    EditorGUILayout.LabelField("Game Key must have a value", warningLabelStyle);
-                }
-                else if (gamekey.stringValue.Length != 35)
-                {
-                    EditorGUILayout.LabelField("Game Key is invalid", warningLabelStyle);
-                }
-                else if (gameStatus == GameStatusFB.Unknown || gameStatus == GameStatusFB.Paused || gameStatus == GameStatusFB.Deleted)
-                {
-                    EditorGUILayout.LabelField("Game Status is " + gameStatus, warningLabelStyle);
-                }
-            }
             EditorGUILayout.PropertyField(applicationVersion);
-            EditorGUILayout.PropertyField(customMagnifierTemplate);
-            EditorGUILayout.PropertyField(magnifierSortOrder);
             EditorGUILayout.PropertyField(androidAdmobAppId);
-
-
-            string newiOSAdMobAppId = EditorGUI.TextField(EditorGUILayout.GetControlRect(), new GUIContent("iOS Ad Mob App Id", "The iOS Admob Application Id for this App"), AdinmoManager.m_iOSAdMobAppId);
-            List<string> labels = new();
+            EditorGUILayout.PropertyField(magnifierSortOrder);
+            
+            string newiOSAdMobAppId = EditorGUI.TextField(EditorGUILayout.GetControlRect(), "iOS Ad Mob App Id",AdinmoManager.m_iOSAdMobAppId);
+            List<string> labels = new List<string>();
             int clickDisplayMask = 0;
             int currentLayerMask = serializedObject.FindProperty("clickLayerMask").intValue;
             for (int i = 0; i < 32; i++)
@@ -473,7 +400,7 @@ namespace Adinmo
 
             if (labels.Count > 0)
             {
-                int newclickDisplaymask = EditorGUILayout.MaskField(new GUIContent("Click ignores Layers", "Objects on selected layers won't block click detection"), clickDisplayMask, labels.ToArray());
+                int newclickDisplaymask = EditorGUILayout.MaskField("Click ignores Layers", clickDisplayMask, labels.ToArray());
                 if (newclickDisplaymask != -1 && newclickDisplaymask != clickDisplayMask)
                 {
                     int newClickMask = 0;
@@ -493,17 +420,17 @@ namespace Adinmo
                 }
             }
 
-            //Apply the visual changes to properties
+                //Apply the visual changes to properties
             bool changed = serializedObject.ApplyModifiedProperties();
-            if (newiOSAdMobAppId != AdinmoManager.m_iOSAdMobAppId)
+            if(newiOSAdMobAppId!=AdinmoManager.m_iOSAdMobAppId)
             {
                 if (!string.IsNullOrEmpty(newiOSAdMobAppId))
                 {
                     Directory.CreateDirectory(Application.dataPath + "/AdinmoData");
-                    StreamWriter writer = new(Application.dataPath + "/AdinmoData/iosUMPCode.txt", false);
+                    StreamWriter writer = new StreamWriter(Application.dataPath + "/AdinmoData/iosUMPCode.txt", false);
                     writer.Write(newiOSAdMobAppId);
                     writer.Close();
-
+                    
                 }
                 else if (File.Exists(Application.dataPath + "/AdinmoData/iosUMPCode.txt"))
                 {
@@ -513,19 +440,19 @@ namespace Adinmo
             }
         }
 
-        public static string GetEditorScriptPath()
+        public static string getEditorScriptPath()
         {
             var guid = AssetDatabase.FindAssets($"t:Script {nameof(AdinmoEditor)}")[0];
             var path = AssetDatabase.GUIDToAssetPath(guid);
-            return path[..path.LastIndexOf("/")];
+            return path.Substring(0, path.LastIndexOf("/"));
         }
 
-        public static string GetiOSCode()
+        public static string getiOSCode()
         {
             string iosCode = null;
             try
             {
-                StreamReader reader = new(Application.dataPath + "/AdinmoData/iosUMPCode.txt");
+                StreamReader reader = new StreamReader(Application.dataPath + "/AdinmoData/iosUMPCode.txt");
                 iosCode = reader.ReadToEnd();
                 reader.Close();
             }
@@ -568,7 +495,8 @@ namespace Adinmo
             {
                 try
                 {
-                    int.TryParse(Application.unityVersion[..4], out int unityVersion);
+                    int unityVersion = 0;
+                    int.TryParse(Application.unityVersion.Substring(0, 4), out unityVersion);
                     if (EditorUserBuildSettings.activeBuildTarget == BuildTarget.Android && PlayerSettings.GetGraphicsAPIs(BuildTarget.Android)[0] == UnityEngine.Rendering.GraphicsDeviceType.Vulkan && unityVersion < 2019)
                     {
                         Debug.LogWarning("Vulkan support for Android in Adinmo only fully implemented for Unity 2019 and above");
@@ -582,11 +510,12 @@ namespace Adinmo
         {
             MonoScript ms = MonoScript.FromScriptableObject(this);
             string editorScriptPath = AssetDatabase.GetAssetPath(ms);
-            editorScriptPath = editorScriptPath[..editorScriptPath.LastIndexOf("/")];
+            editorScriptPath = editorScriptPath.Substring(0, editorScriptPath.LastIndexOf("/"));
             AdinmoLogo = (Texture2D)AssetDatabase.LoadAssetAtPath(editorScriptPath + "/Textures/AdinMoLogo.png", typeof(Texture2D));
             Texture2D AdinmoIcon = (Texture2D)AssetDatabase.LoadAssetAtPath(editorScriptPath + "/Textures/AdinmoIcon.png", typeof(Texture2D));
             titleContent = new GUIContent("Adinmo", AdinmoIcon);
-            m_TreeViewState ??= new TreeViewState();
+            if (m_TreeViewState == null)
+                m_TreeViewState = new TreeViewState();
             m_gameRunning = Application.isPlaying;
             placementTreeView = new AdinmoPlacementTreeView(m_TreeViewState, editorScriptPath);
 
@@ -639,9 +568,9 @@ namespace Adinmo
             }
             //Render the common AdinmoManagerUI
             var serializedObject = new SerializedObject(adinmoManager);
-            Rect rect = new();
+            Rect rect = new Rect();
             var oldLabelWidth = EditorGUIUtility.labelWidth;
-            AdinmoEditorCommon.RenderAdinmoManagerUI(serializedObject, AdinmoLogo, ref rect, true, AdinmoEditorCommon.GetEditorScriptPath());
+            AdinmoEditorCommon.RenderAdinmoManagerUI(serializedObject, AdinmoLogo, ref rect, true,AdinmoEditorCommon.getEditorScriptPath());
             //Render the UI that is exclusive to the popout window
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("Placements in scene", EditorStyles.boldLabel);
@@ -651,6 +580,8 @@ namespace Adinmo
             rect = EditorGUILayout.GetControlRect(false, GUILayout.ExpandHeight(true));
             placementTreeView.OnGUI(rect);
             EditorGUILayout.EndHorizontal();
+            var versionStyle = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.LowerRight, fontSize = 10 };
+            EditorGUILayout.LabelField("", "v" + AdinmoSender.GetVersion() + " s" + AdinmoSender.GetSdkSource(), versionStyle);
             EditorGUILayout.EndVertical();
             EditorGUIUtility.labelWidth = oldLabelWidth;
         }

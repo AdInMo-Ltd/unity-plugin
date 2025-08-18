@@ -10,18 +10,18 @@ namespace Adinmo
         // Start is called before the first frame update
         void Start()
         {
-            AdinmoManager.SetPauseGameCallback(GamePaused);
-            AdinmoManager.SetResumeGameCallback(GameResumed);
+            AdinmoManager.SetPauseGameCallback(gamePaused);
+            AdinmoManager.SetResumeGameCallback(gameResumed);
         }
 
 
-        public void GamePaused()
+        public void gamePaused()
         {
             //Add game specific code for handling pausing the game
             Time.timeScale = 0;
         }
 
-        public void GameResumed()
+        public void gameResumed()
         {
             //Add game specific code for handling resuming the game
             Time.timeScale = 1;

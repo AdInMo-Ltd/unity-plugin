@@ -59,12 +59,12 @@ namespace Adinmo
         {
             if (AdinmoManager.IsReady())
             {
-                StatusCallback("");
+                statusCallback("");
             }
             else
             {
                 gameObject.SetActive(false);
-                AdinmoManager.AddOnReadyListener(StatusCallback);
+                AdinmoManager.AddOnReadyListener(statusCallback);
             }
 
         }
@@ -120,8 +120,8 @@ namespace Adinmo
 
         public void OnEnable()
         {
-            AdinmoManager.SetZBDOpCallback(OpCallback);
-            AdinmoManager.SetZBDUpdateCallback(UpdateCallback);
+            AdinmoManager.SetZBDOpCallback(opCallback);
+            AdinmoManager.SetZBDUpdateCallback(updateCallback);
             uint satsBalance = AdinmoManager.GetZBDSatsBalance();
             CashoutBitcoinAmount.text = AdinmoUtilities.ToEngineeringNotation(satsBalance);
             SetBitcoinCounter(satsBalance, false);
@@ -134,11 +134,11 @@ namespace Adinmo
             AdinmoManager.SetZBDUpdateCallback(null);
         }
 
-        void StatusCallback(string message)
+        void statusCallback(string message)
         {
             gameObject.SetActive(AdinmoManager.SupportsZebedee);
-            AdinmoManager.SetZBDOpCallback(OpCallback);
-            AdinmoManager.SetZBDUpdateCallback(UpdateCallback);
+            AdinmoManager.SetZBDOpCallback(opCallback);
+            AdinmoManager.SetZBDUpdateCallback(updateCallback);
 
             uint satsBalance = AdinmoManager.GetZBDSatsBalance();
             CashoutBitcoinAmount.text = AdinmoUtilities.ToEngineeringNotation(satsBalance);
@@ -147,9 +147,9 @@ namespace Adinmo
 
 
         }
-        void OpCallback(bool success, string gamertag, uint balanceSats, float balanceChangeSats, float balanceDollars, string feedback)
+        void opCallback(bool success, string gamertag, uint balanceSats, float balanceChangeSats, float balanceDollars, string feedback)
         {
-            AdinmoUtilities.LogInfo("zbd op callback success=" + success + ", gamerTag=" + gamertag + ", balanceSats=" + balanceSats + ", balanceDollars=" + balanceDollars + ", balanceChange=" + balanceChangeSats + ", feeedbacl=" + feedback);
+            AdinmoManager.LogInfo("zbd op callback success=" + success + ", gamerTag=" + gamertag + ", balanceSats=" + balanceSats + ", balanceDollars=" + balanceDollars + ", balanceChange=" + balanceChangeSats + ", feeedbacl=" + feedback);
             CashoutBitcoinAmount.text = AdinmoUtilities.ToEngineeringNotation(balanceSats);
             SetBitcoinCounter(balanceSats);
             DollarText.text = "$" + AdinmoManager.GetZBDDollarBalance();
@@ -176,9 +176,9 @@ namespace Adinmo
 
         }
 
-        void UpdateCallback(bool success, string gamertag, uint balanceSats, float balanceChangeSats, float balanceDollars, string feedback)
+        void updateCallback(bool success, string gamertag, uint balanceSats, float balanceChangeSats, float balanceDollars, string feedback)
         {
-            AdinmoUtilities.LogInfo("zbd update callback success=" + success + ", gamerTag=" + gamertag + ", balanceSats=" + balanceSats + ", balanceDollars=" + balanceDollars + ", balanceChange=" + balanceChangeSats + ", feeedback=" + feedback);
+            AdinmoManager.LogInfo("zbd update callback success=" + success + ", gamerTag=" + gamertag + ", balanceSats=" + balanceSats + ", balanceDollars=" + balanceDollars + ", balanceChange=" + balanceChangeSats + ", feeedback=" + feedback);
             SetBitcoinCounter(balanceSats);
         }
 

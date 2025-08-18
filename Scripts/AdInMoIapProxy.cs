@@ -21,7 +21,7 @@ public static class UnityPurchasingAdInMoExtensions
     /// <param name="builder">Unity IAP ConfigurationBuilder</param>
     public static void InitializeWithAdInMo(IStoreListener listener, ConfigurationBuilder builder)
     {
-        AdinmoUtilities.LogInfo("Initializing Unity Purchasing with AdInMo IAPBoost support...");
+        Debug.Log("[AdInMo] Initializing Unity Purchasing with AdInMo IAPBoost support...");
         AdInMoIapProxy.Register();
         
         // Use newer IDetailedStoreListener API to avoid deprecation warnings
@@ -60,7 +60,7 @@ internal static class AdInMoIapProxy
         if (_registered) return;
         _registered = true;
 
-        AdinmoUtilities.LogInfo("Registering AdInMo IAPBoost callbacks...");
+        Debug.Log("[AdInMoIapProxy] Registering AdInMo IAPBoost callbacks...");
 
         // 1) When an AdInMo UI/ad requests a purchase, start Unity IAP for that SKU
         AdinmoManager.SetInAppPurchaseCallback(OnAdInMoPurchaseRequested);
@@ -70,24 +70,19 @@ internal static class AdInMoIapProxy
 
         // 3) Let AdInMo know if a non-consumable is already owned (for gating UI/serving)
         // Use boolean callback for maximum compatibility across AdInMo SDK versions
-        AdinmoManager.SetInAppPurchasedAlreadyCallback(iapId =>
+        AdinmoManager.SetInAppPurchasedAlreadyCallback((string iapId) =>
         {
-            // Fallback: try to get controller from Unity IAP if proxy wasn't initialized properly
-            if (_controller == null)
-            {
-                TryGetControllerFromUnityIAP();
-            }
-            
             var product = _controller?.products?.WithID(iapId);
             bool isPurchased = product != null && product.hasReceipt;
-
-            AdinmoUtilities.LogInfo($"Already purchased check for {iapId}: {isPurchased}");
+            
+            Debug.Log($"[AdInMoIapProxy] Already purchased check for {iapId}: {isPurchased}");
             if(isPurchased)
                 return new InAppAlreadyPurchasedReply(true, (float)product.metadata.localizedPrice, product.metadata.isoCurrencyCode);
             return new InAppAlreadyPurchasedReply(false);
         });
+        Debug.Log("[AdInMoIapProxy] Using boolean-based already purchased callback for maximum compatibility");
 
-        AdinmoUtilities.LogInfo("All callbacks registered successfully!");
+        Debug.Log("[AdInMoIapProxy] All callbacks registered successfully!");
     }
 
     /// <summary>
@@ -98,73 +93,32 @@ internal static class AdInMoIapProxy
     {
         if (_controller?.products?.all == null)
         {
-            AdinmoUtilities.LogWarning("Cannot validate products - IAP not initialized",true);
+            Debug.LogWarning("[AdInMoIapProxy] Cannot validate products - IAP not initialized");
             return;
         }
 
         var registeredProducts = _controller.products.all.Select(p => p.definition.id).ToArray();
-        AdinmoUtilities.LogInfo($"Registered Unity IAP Products: [{string.Join(", ", registeredProducts)}]");
-        AdinmoUtilities.LogInfo(" Ensure all AdInMo campaign SKU IDs match these product IDs to avoid purchase failures");
-
+        Debug.Log($"[AdInMoIapProxy] Registered Unity IAP Products: [{string.Join(", ", registeredProducts)}]");
+        Debug.Log("[AdInMoIapProxy] Ensure all AdInMo campaign SKU IDs match these product IDs to avoid purchase failures");
+        
         #if UNITY_EDITOR
-        AdinmoUtilities.LogInfo("💡 TIP: Check your AdInMo dashboard campaigns and verify all SKU IDs are listed above");
+        Debug.Log("[AdInMoIapProxy] 💡 TIP: Check your AdInMo dashboard campaigns and verify all SKU IDs are listed above");
         #endif
     }
 
     // ---- internal state ----
     static bool _registered;
     static IStoreController _controller;
-    
-    /// <summary>
-    /// Fallback method to get the controller when proxy initialization was bypassed
-    /// </summary>
-    static void TryGetControllerFromUnityIAP()
-    {
-        try
-        {
-            // Try to get the controller from any active StoreHandler instances
-            var storeHandlers = UnityEngine.Object.FindObjectsOfType<MonoBehaviour>();
-            foreach (var handler in storeHandlers)
-            {
-                // Look for StoreController field/property in active components
-                var storeControllerField = handler.GetType().GetField("StoreController", 
-                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
-                
-                if (storeControllerField != null)
-                {
-                    var controller = storeControllerField.GetValue(handler) as IStoreController;
-                    if (controller != null)
-                    {
-                        _controller = controller;
-                        AdinmoUtilities.LogInfo("Found and set controller from StoreHandler fallback");
-                        return;
-                    }
-                }
-            }
-
-            AdinmoUtilities.LogWarning("Could not find active StoreController via fallback method",true);
-        }
-        catch (Exception ex)
-        {
-            AdinmoUtilities.LogError($"Error in fallback controller lookup: {ex.Message}",true);
-        }
-    }
 
     // ---- AdInMo callbacks ----
 
     static void OnAdInMoPurchaseRequested(string iapId)
     {
-        AdinmoUtilities.LogInfo($"Purchase requested from AdInMo for: {iapId}");
-        
-        // Fallback: try to get controller from Unity IAP if proxy wasn't initialized properly
-        if (_controller == null)
-        {
-            TryGetControllerFromUnityIAP();
-        }
+        Debug.Log($"[AdInMoIapProxy] Purchase requested from AdInMo for: {iapId}");
         
         if (_controller == null) 
-        {
-            AdinmoUtilities.LogError("Cannot process purchase - IAP not initialized yet",true);
+        { 
+            Debug.LogError("[AdInMoIapProxy] Cannot process purchase - IAP not initialized yet");
             ReportPurchaseUnavailable(iapId, "IAP system not initialized");
             return; 
         }
@@ -172,19 +126,19 @@ internal static class AdInMoIapProxy
         var product = _controller.products?.WithID(iapId);
         if (product == null)
         {
-            AdinmoUtilities.LogError($"Product '{iapId}' not registered in Unity IAP configuration",true);
+            Debug.LogError($"[AdInMoIapProxy] Product '{iapId}' not registered in Unity IAP configuration");
             ReportPurchaseUnavailable(iapId, "Product not configured in Unity IAP");
             return;
         }
 
         if (!product.availableToPurchase)
         {
-            AdinmoUtilities.LogWarning($"Product '{iapId}' is not available for purchase");
+            Debug.LogWarning($"[AdInMoIapProxy] Product '{iapId}' is not available for purchase");
             ReportPurchaseUnavailable(iapId, "Product not available for purchase", product);
             return;
         }
 
-        AdinmoUtilities.LogInfo($"Starting purchase for: {iapId}");
+        Debug.Log($"[AdInMoIapProxy] Starting purchase for: {iapId}");
         _controller.InitiatePurchase(product);
     }
 
@@ -196,8 +150,8 @@ internal static class AdInMoIapProxy
         // Extract product metadata if available
         string currency = product?.metadata?.isoCurrencyCode ?? "USD";
         float price = product != null ? (float)(product.metadata?.localizedPrice ?? 0m) : 0f;
-
-        AdinmoUtilities.LogError($"Reporting purchase failure to AdInMo: {iapId} - {reason}",true);
+        
+        Debug.LogError($"[AdInMoIapProxy] Reporting purchase failure to AdInMo: {iapId} - {reason}");
         
         try 
         {
@@ -206,20 +160,15 @@ internal static class AdInMoIapProxy
         }
         catch (Exception ex)
         {
-            AdinmoUtilities.LogError($"Failed to report purchase unavailability to AdInMo: {ex.Message}",true);
+            Debug.LogError($"[AdInMoIapProxy] Failed to report purchase unavailability to AdInMo: {ex.Message}");
         }
     }
 
     static string GetLocalizedPriceString(string itemId)
     {
-        if (_controller == null)
-        {
-            TryGetControllerFromUnityIAP();
-        }
-        
         var p = _controller?.products?.WithID(itemId);
         var price = p?.metadata?.localizedPriceString;
-        AdinmoUtilities.LogInfo($"Price requested for {itemId}: {price}");
+        Debug.Log($"[AdInMoIapProxy] Price requested for {itemId}: {price}");
         return price;
     }
 
@@ -233,13 +182,13 @@ internal static class AdInMoIapProxy
         public void OnInitialized(IStoreController c, IExtensionProvider e)
         {
             _controller = c; // allow callbacks to query products & initiate purchases
-            AdinmoUtilities.LogInfo("Unity IAP initialized, store controller ready",true);
+            Debug.Log("[AdInMoIapProxy] Unity IAP initialized, store controller ready");
             _inner.OnInitialized(c, e);
         }
 
         public void OnInitializeFailed(InitializationFailureReason error)
         {
-            AdinmoUtilities.LogError($"Unity IAP initialization failed: {error}",true);
+            Debug.LogError($"[AdInMoIapProxy] Unity IAP initialization failed: {error}");
             #pragma warning disable CS0612
             _inner.OnInitializeFailed(error);
             #pragma warning restore CS0612
@@ -247,7 +196,7 @@ internal static class AdInMoIapProxy
 
         public void OnInitializeFailed(InitializationFailureReason error, string message)
         {
-            AdinmoUtilities.LogError($"Unity IAP initialization failed: {error} - {message}",true);
+            Debug.LogError($"[AdInMoIapProxy] Unity IAP initialization failed: {error} - {message}");
             _inner.OnInitializeFailed(error, message);
         }
 
@@ -298,7 +247,7 @@ internal static class AdInMoIapProxy
             var amt  = (float)(p.metadata?.localizedPrice ?? 0m);
             var tx   = p.transactionID;
 
-            AdinmoUtilities.LogInfo($"Reporting success to AdInMo: {id}, {curr}, {amt}, {tx}");
+            Debug.Log($"[AdInMoIapProxy] Reporting success to AdInMo: {id}, {curr}, {amt}, {tx}");
             
             AdinmoManager.InAppPurchaseSuccess(id, curr, amt, tx);
         }
@@ -310,7 +259,7 @@ internal static class AdInMoIapProxy
             var curr = p.metadata?.isoCurrencyCode ?? "";
             var amt  = (float)(p.metadata?.localizedPrice ?? 0m);
 
-            AdinmoUtilities.LogInfo($"Reporting failure to AdInMo: {id}, reason: {reason}");
+            Debug.Log($"[AdInMoIapProxy] Reporting failure to AdInMo: {id}, reason: {reason}");
             
             // Newer SDKs accept a failure reason parameter.
             try {

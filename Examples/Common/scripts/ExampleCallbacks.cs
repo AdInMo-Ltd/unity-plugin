@@ -25,6 +25,7 @@ namespace Adinmo
 			AdinmoManager.SetOnReadyCallback(OnAllTexturesDownloaded);
 			// Callback per image if desired
 			m_imageToReplace.SetOnReadyCallback(OnTextureReplace);
+			m_imageToReplace.SetOnFailCallback(OnTextureFail);
 
 			// Optionally hide the image until it is ready to be shown
 			if (m_bHideObjectUntilReady)
@@ -63,5 +64,14 @@ namespace Adinmo
 		}
 
 
+		///////////////////////////////////////////////////////////////////
+		// Once all textures have finished downloading
+		///////////////////////////////////////////////////////////////////
+		void OnTextureFail(AdinmoTexture t)
+		{
+			Debug.Log("Texture not replaced -- Original texture will be seen");
+
+			ShowImage();
+		}
 	}
 }

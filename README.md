@@ -7,7 +7,7 @@
 **Seamless In-Game Advertising for Unity**
 
 [![Unity Version](https://img.shields.io/badge/Unity-2019.4+-blue.svg)](https://unity3d.com/get-unity/download)
-[![Version](https://img.shields.io/badge/Version-314-orange.svg)](https://github.com/AdInMo-Ltd/unity-plugin/releases)
+[![Version](https://img.shields.io/badge/Version-3.1.4-orange.svg)](https://github.com/AdInMo-Ltd/unity-plugin/releases)
 [![License](https://img.shields.io/badge/License-Commercial-green.svg)](https://www.adinmo.com)
 
 [🚀 Quick Start](#quick-start) • [📖 Documentation](#documentation) • [💬 Support](#support) • [🔗 Developer Portal](https://www.adinmo.com)
@@ -53,7 +53,7 @@ https://github.com/AdInMo-Ltd/unity-plugin.git
 For production projects, specify a version:
 
 ```
-https://github.com/AdInMo-Ltd/unity-plugin.git#v314
+https://github.com/AdInMo-Ltd/unity-plugin.git#v3.1.4
 ```
 
 ### Traditional .unitypackage (Legacy)
@@ -161,11 +161,11 @@ Support for custom meshes and complex geometries:
 
 | Version | Release Date | Key Features |
 |---------|--------------|--------------|
-| **v314** | August 2024 | Unity IAP v4 integration, enhanced stability |
-| **v313** | July 2024 | Performance improvements, bug fixes |
-| **v312** | July 2024 | UI/UX enhancements |
-| **v311** | June 2024 | Cross-platform optimizations |
-| **v310** | May 2024 | Advanced targeting features |
+| **v3.1.4** | August 2024 | Unity IAP v4 integration, enhanced stability |
+| **v3.1.3** | July 2024 | Performance improvements, bug fixes |
+| **v3.1.2** | July 2024 | UI/UX enhancements |
+| **v3.1.1** | June 2024 | Cross-platform optimizations |
+| **v3.1.0** | May 2024 | Advanced targeting features |
 
 [📋 Complete Changelog](https://github.com/AdInMo-Ltd/unity-plugin/releases)
 

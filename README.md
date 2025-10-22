@@ -7,7 +7,7 @@
 **Seamless In-Game Advertising for Unity**
 
 [![Unity Version](https://img.shields.io/badge/Unity-2019.4+-blue.svg)](https://unity3d.com/get-unity/download)
-[![Version](https://img.shields.io/badge/Version-3.1.4-orange.svg)](https://github.com/AdInMo-Ltd/unity-plugin/releases)
+[![Version](https://img.shields.io/badge/Version-3.2.314-orange.svg)](https://github.com/AdInMo-Ltd/unity-plugin/releases)
 [![License](https://img.shields.io/badge/License-Commercial-green.svg)](https://www.adinmo.com)
 
 [🚀 Quick Start](#quick-start) • [📖 Documentation](#documentation) • [💬 Support](#support) • [🔗 Developer Portal](https://www.adinmo.com)
@@ -53,7 +53,7 @@ https://github.com/AdInMo-Ltd/unity-plugin.git
 For production projects, specify a version:
 
 ```
-https://github.com/AdInMo-Ltd/unity-plugin.git#v3.1.4
+https://github.com/AdInMo-Ltd/unity-plugin.git#v3.2.314
 ```
 
 ### Traditional .unitypackage (Legacy)
@@ -117,7 +117,7 @@ Assets/Adinmo/Examples/Simple Scene.unity
 Boost your IAP conversion with contextual product placement:
 
 ```csharp
-// Enable IAP integration with Unity IAP v4
+// Enable IAP integration with Unity IAP v4/v5
 UnityPurchasingAdInMoExtensions.InitializeWithAdInMo(this, builder);
 ```
 
@@ -161,13 +161,13 @@ Support for custom meshes and complex geometries:
 
 | Version | Release Date | Key Features |
 |---------|--------------|--------------|
-| **v3.1.4** | August 2024 | Unity IAP v4 integration, enhanced stability |
-| **v3.1.3** | July 2024 | Performance improvements, bug fixes |
-| **v3.1.2** | July 2024 | UI/UX enhancements |
-| **v3.1.1** | June 2024 | Cross-platform optimizations |
-| **v3.1.0** | May 2024 | Advanced targeting features |
+| **v3.2.314** | August 2025 | Unity IAP v4/v5 support, SKProductViewController |
+| **v3.1.313** | July 2025 | Vulkan renderer fixes, Android library updates |
+| **v3.1.312** | July 2025 | CPU optimization for low-end devices |
+| **v3.1.311** | June 2025 | Long dwell times, No Ads support, video sprites |
+| **v3.1.310** | May 2025 | Sprite fixes, manual magnifier customization |
 
-[📋 Complete Changelog](https://github.com/AdInMo-Ltd/unity-plugin/releases)
+[📋 Complete Changelog](https://github.com/AdInMo-Ltd/unity-plugin/blob/main/CHANGELOG.md)
 
 ---
 
@@ -241,7 +241,7 @@ We work with top-tier brands and game studios to create meaningful advertising e
 
 This SDK is provided under a commercial license. See [License Terms](https://www.adinmo.com/terms) for details.
 
-**Copyright © 2024 AdInMo Ltd. All rights reserved.**
+**Copyright © 2025 AdInMo Ltd. All rights reserved.**
 
 ---
 

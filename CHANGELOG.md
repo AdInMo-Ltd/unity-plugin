@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [3.2.314] - 2025-08-25
 
 ### Added
-- Unity IAP v5 support with enhanced integration
+- Unity IAP v4/v5 support with enhanced integration and backward compatibility
 - SKProductViewController for improved iOS purchasing experience
 
 ### Changed
@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Replaced SKOverlay with SKProductViewController for better iOS compatibility
 
 ### Commits
-- Commit 6e0473fb: Refactored IAP to be simpler and support IAP v5
+- Commit 6e0473fb: Refactored IAP to be simpler and support IAP v4/v5
 - Commit f06a7e2d: Replaced SKOverlay with SKProductViewController
 
 ## [3.1.313] - 2025-07-30
@@ -120,7 +120,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Migration Guide
 
 ### Upgrading to 3.2.314
-- Update to Unity IAP v5 for enhanced functionality
+- Update to Unity IAP v4/v5 for enhanced functionality
 - Review IAP integration for simplified API changes
 - Test iOS purchasing with new SKProductViewController
 

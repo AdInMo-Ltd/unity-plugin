@@ -17,7 +17,9 @@
   },
   "changelogUrl": "https://github.com/AdInMo-Ltd/unity-plugin/blob/main/CHANGELOG.md",
   "licensesUrl": "https://github.com/AdInMo-Ltd/unity-plugin/blob/main/LICENSE",
-  "dependencies": {},
+  "dependencies": {
+    "com.unity.purchasing": "4.12.2"
+  },
   "samples": [
     {
       "displayName": "Basic Integration Example",

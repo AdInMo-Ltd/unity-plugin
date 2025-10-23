@@ -3,7 +3,8 @@
     "rootNamespace": "Adinmo",
     "references": [
         "Unity.Purchasing",
-        "Unity.Purchasing.Stores"
+        "Unity.Purchasing.Stores",
+        "Unity.InputSystem"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

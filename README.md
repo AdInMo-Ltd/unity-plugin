@@ -35,30 +35,21 @@ AdInMo transforms traditional advertising by seamlessly integrating **real brand
 
 ## 🚀 Quick Start
 
-### Unity Package Manager (Recommended)
+### Download Unity Package (Recommended)
 
-1. **Open Unity Editor**
-2. Navigate to **Window → Package Manager**
-3. Click **+ → Add package from git URL**
-4. Paste the following URL:
+1. **Go to Releases**: [https://github.com/AdInMo-Ltd/unity-plugin/releases](https://github.com/AdInMo-Ltd/unity-plugin/releases)
+2. **Download** the latest `AdInMo-Unity-SDK-v[version].unitypackage`
+3. **Open Unity Editor** and your project
+4. **Import Package**: `Assets → Import Package → Custom Package...`
+5. **Select** the downloaded `.unitypackage` file
+6. **Import All** assets when prompted
 
-```
-https://github.com/AdInMo-Ltd/unity-plugin.git
-```
+### Alternative: Direct Download
 
-5. Click **Add** and Unity will handle the rest!
+For quick access to the latest version:
 
-### Alternative: Specific Version Installation
-
-For production projects, specify a version:
-
-```
-https://github.com/AdInMo-Ltd/unity-plugin.git#v3.2.314
-```
-
-### Traditional .unitypackage (Legacy)
-
-Download from [Releases](https://github.com/AdInMo-Ltd/unity-plugin/releases) and import manually.
+1. **Download**: [Latest Release](https://github.com/AdInMo-Ltd/unity-plugin/releases/latest)
+2. **Import** the `.unitypackage` file into your Unity project
 
 ---
 
@@ -176,16 +167,13 @@ Support for custom meshes and complex geometries:
 ### Common Issues
 
 <details>
-<summary><strong>Package Manager Installation Failed</strong></summary>
+<summary><strong>Unity Package Import Failed</strong></summary>
 
 **Solution:**
-```bash
-# Ensure Git is installed and accessible
-git --version
-
-# Try HTTPS URL instead
-https://github.com/AdInMo-Ltd/unity-plugin.git
-```
+1. **Check Unity Version** - Ensure you're using Unity 2019.4 LTS or newer
+2. **Download Again** - Re-download the `.unitypackage` from releases
+3. **Clear Cache** - Close Unity, delete `Library/` folder, restart Unity
+4. **Manual Import** - Try `Assets → Import Package → Custom Package...`
 </details>
 
 <details>

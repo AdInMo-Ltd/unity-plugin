@@ -35,7 +35,29 @@ AdInMo transforms traditional advertising by seamlessly integrating **real brand
 
 ## 🚀 Quick Start
 
-### Download Unity Package (Recommended)
+### Option 1: Unity Package Manager (Recommended)
+
+**Install via Git URL - Always gets latest updates:**
+
+1. **Open Unity Editor**
+2. Navigate to **Window → Package Manager**
+3. Click **+ → Add package from git URL**
+4. Paste the following URL:
+
+```
+https://github.com/AdInMo-Ltd/unity-plugin.git
+```
+
+5. Click **Add** and Unity will handle the rest!
+
+**For specific versions, use:**
+```
+https://github.com/AdInMo-Ltd/unity-plugin.git#v3.2.314
+```
+
+### Option 2: Download Unity Package
+
+**Manual installation - Full control over version:**
 
 1. **Go to Releases**: [https://github.com/AdInMo-Ltd/unity-plugin/releases](https://github.com/AdInMo-Ltd/unity-plugin/releases)
 2. **Download** the latest `AdInMo-Unity-SDK-v[version].unitypackage`
@@ -43,13 +65,6 @@ AdInMo transforms traditional advertising by seamlessly integrating **real brand
 4. **Import Package**: `Assets → Import Package → Custom Package...`
 5. **Select** the downloaded `.unitypackage` file
 6. **Import All** assets when prompted
-
-### Alternative: Direct Download
-
-For quick access to the latest version:
-
-1. **Download**: [Latest Release](https://github.com/AdInMo-Ltd/unity-plugin/releases/latest)
-2. **Import** the `.unitypackage` file into your Unity project
 
 ---
 
@@ -167,11 +182,29 @@ Support for custom meshes and complex geometries:
 ### Common Issues
 
 <details>
+<summary><strong>Package Manager Installation Failed</strong></summary>
+
+**For UPM Git URL installation:**
+```bash
+# Ensure Git is installed and accessible
+git --version
+
+# Try with specific version tag
+https://github.com/AdInMo-Ltd/unity-plugin.git#v3.2.314
+```
+
+**Alternative solutions:**
+- Restart Unity Editor and try again
+- Check Unity Console for detailed error messages
+- Use Option 2 (.unitypackage download) as fallback
+</details>
+
+<details>
 <summary><strong>Unity Package Import Failed</strong></summary>
 
-**Solution:**
+**For .unitypackage installation:**
 1. **Check Unity Version** - Ensure you're using Unity 2019.4 LTS or newer
-2. **Download Again** - Re-download the `.unitypackage` from releases
+2. **Download Again** - Re-download the `.unitypackage` from releases  
 3. **Clear Cache** - Close Unity, delete `Library/` folder, restart Unity
 4. **Manual Import** - Try `Assets → Import Package → Custom Package...`
 </details>

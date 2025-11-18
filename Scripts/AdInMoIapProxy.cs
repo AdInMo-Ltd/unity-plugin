@@ -1,6 +1,12 @@
 // AdInMoIapProxy.cs
 // Unity-style extension method for seamless AdInMo IAPBoost integration
 // Usage: UnityPurchasing.InitializeWithAdInMo(this, builder);
+//
+// Optional Pre-Purchase Event:
+//   AdInMoIapProxy.OnPrePurchase += (args) => {
+//       Debug.Log($"About to purchase: {args.ProductId}");
+//       AttachMyCustomCallbacks(args.ProductId);
+//   };
 # if ADINMO_UNITY_STORE_V4
 using System;
 using System.Linq;
@@ -47,6 +53,25 @@ public static class UnityPurchasingAdInMoExtensions
 /// </summary>
 internal static class AdInMoIapProxy
 {
+    /// <summary>
+    /// Pre-purchase event metadata
+    /// </summary>
+    public class PrePurchaseEventArgs
+    {
+        public string ProductId { get; internal set; }
+        public Product Product { get; internal set; }
+    }
+
+    /// <summary>
+    /// Event fired before initiating a purchase. Subscribe to run custom logic.
+    /// </summary>
+    public static event Action<PrePurchaseEventArgs> OnPrePurchase;
+
+    /// <summary>
+    /// When true, SDK waits for ContinuePurchase() call. Default: false
+    /// </summary>
+    public static bool PauseBeforePurchase { get; set; } = false;
+
     /// <summary>
     /// Wraps an IStoreListener with AdInMo reporting capabilities
     /// </summary>
@@ -109,6 +134,23 @@ internal static class AdInMoIapProxy
     // ---- internal state ----
     static bool _registered;
     static IStoreController _controller;
+    static System.Collections.Generic.Dictionary<string, Product> _pendingPurchases = new System.Collections.Generic.Dictionary<string, Product>();
+
+    /// <summary>
+    /// Continue a paused purchase. Only needed when PauseBeforePurchase = true.
+    /// </summary>
+    public static void ContinuePurchase(string productId)
+    {
+        if (!_pendingPurchases.TryGetValue(productId, out var product))
+        {
+            Debug.LogWarning($"[AdInMoIapProxy] No pending purchase found for: {productId}");
+            return;
+        }
+
+        _pendingPurchases.Remove(productId);
+        Debug.Log($"[AdInMoIapProxy] Continuing paused purchase for: {productId}");
+        _controller.InitiatePurchase(product);
+    }
 
     // ---- AdInMo callbacks ----
 
@@ -135,6 +177,24 @@ internal static class AdInMoIapProxy
         {
             Debug.LogWarning($"[AdInMoIapProxy] Product '{iapId}' is not available for purchase");
             ReportPurchaseUnavailable(iapId, "Product not available for purchase", product);
+            return;
+        }
+
+        // Fire pre-purchase event
+        try
+        {
+            OnPrePurchase?.Invoke(new PrePurchaseEventArgs { ProductId = iapId, Product = product });
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"[AdInMoIapProxy] Error in OnPrePurchase handler: {ex.Message}");
+        }
+
+        // If pause mode enabled, store and wait for ContinuePurchase()
+        if (PauseBeforePurchase)
+        {
+            Debug.Log($"[AdInMoIapProxy] Purchase paused for: {iapId}. Call AdInMoIapProxy.ContinuePurchase(\"{iapId}\") to proceed.");
+            _pendingPurchases[iapId] = product;
             return;
         }
 
